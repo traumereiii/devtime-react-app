@@ -12,8 +12,8 @@ export default function TextArea({
   const classes = `
     bg-[var(--grey-50)] w-[568px] h-[84px]
     px-[16px] py-[12px]  
-    text-[var(--color-${value?.length === 0 ? "grey-300" : "grey-800"})] text-[16px]
-    font-[500] 
+    text-[var(--color-${value?.length === 0 ? "grey-300" : "grey-800"})] 
+    body
     focus:outline-none
     focus:border-none
     resize-none

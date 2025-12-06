@@ -19,8 +19,8 @@ export default function InputField({
 }: InputFieldProps) {
   const classes = `
     bg-[var(--grey-100)] px-[24px] py-[16px]
-    text-[var(${value?.length === 0 ? "--grey-300" : "--grey-800"})] text-[16px] 
-    font-[500]  
+    text-[var(${value?.length === 0 ? "--grey-300" : "--grey-800"})] 
+    body
     border-none
     focus:outline-none
     focus:border-none
@@ -28,7 +28,7 @@ export default function InputField({
 
   return (
     <div className="flex flex-col gap-[8px]">
-      <label className="font-[500] text-[14px] leading-[18px]">{label}</label>
+      <label className="body-small">{label}</label>
       <input
         className={classes}
         type={type}
