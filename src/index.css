@@ -1,1 +1,49 @@
 @import "tailwindcss";
+
+@theme {
+    --color-primary: #4c79ff;
+    --color-primary-10: rgba(76,121,255, 0.1);
+    --color-primary-30: rgba(76,121,255, 0.3);
+    --color-primary-10b: hsl(225, 100%, 55%);
+    --color-primary-light: #78b0ff;
+    --color-primary-light-10: rgb(120,176,255, 0.1);
+    --color-primary-light-30: rgb(120,176,255, 0.3);
+    --color-primary-light-10b: hsl(215, 100%, 64%);
+    --color-primary-gradient-start: #4c79ff;
+    --color-primary-gradient-end: #023e99;
+
+    --color-indigo: #023e99;
+    --color-indigo-light: #a3c3ff;
+    --color--informative: #2563eb;
+    --color--informative-light: #2563ec;
+    --color--negative: #dc2626;
+    --color--negative-light: #dc2626;
+    --color--notice: #fbbf24;
+    --color--notice-light: #fbbf24;
+    --color--positive: #22c55e;
+    --color--positive-light: #22c55e;
+    --color-fuchsia: #fd28ec;
+    --color-fuchsia-light: #fd28ec;
+
+    --color-white: #ffffff;
+    --grey-50: #f9fafb;
+    --grey-100: #f0f2f5;
+    --grey-200: #e5e7eb;
+    --grey-300: #ccd0d6;
+    --grey-400: #969da8;
+    --grey-500: #717887;
+    --grey-600: #4b5563;
+    --grey-700: #394252;
+    --grey-800: #1f2937;
+
+    --state-disabled: var(--grey-400);
+    --state-hover: var(--color-primary-10b);
+    --state-active: var(--color-primary-10b);
+
+    --dim-1: rgba(0, 0, 0, 0.5);
+    --dim-2: rgba(0, 0, 0, 0.7);
+    --border: var(--grey-300);
+    --shadow1: #000000;
+    --shadow2: #000000;
+
+}
