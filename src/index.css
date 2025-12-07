@@ -1,29 +1,30 @@
 @import "tailwindcss";
 
 @theme {
-    --color-primary: #4c79ff;
-    --color-primary-10: rgba(76,121,255, 0.1);
-    --color-primary-30: rgba(76,121,255, 0.3);
-    --color-primary-10b: hsl(225, 100%, 55%);
-    --color-primary-light: #78b0ff;
-    --color-primary-light-10: rgb(120,176,255, 0.1);
-    --color-primary-light-30: rgb(120,176,255, 0.3);
-    --color-primary-light-10b: hsl(215, 100%, 64%);
+    --color-primary: rgba(76, 121, 255, 1);
+    --color-primary-10: rgba(76, 121, 255, 0.1);
+    --color-primary-30: rgba(76, 121, 255, 0.3);
+
+    --color-primary-light: rgba(120, 176, 255, 1);
+    --color-primary-light-90: rgba(120, 176, 255, 0.9);
+    --color-primary-light-70: rgba(120, 176, 255, 0.7);
+
     --color-primary-gradient-start: #4c79ff;
     --color-primary-gradient-end: #023e99;
 
-    --color-indigo: #023e99;
-    --color-indigo-light: #a3c3ff;
-    --color--informative: #2563eb;
-    --color--informative-light: #2563ec;
-    --color--negative: #dc2626;
-    --color--negative-light: #dc2626;
-    --color--notice: #fbbf24;
-    --color--notice-light: #fbbf24;
-    --color--positive: #22c55e;
-    --color--positive-light: #22c55e;
-    --color-fuchsia: #fd28ec;
-    --color-fuchsia-light: #fd28ec;
+    --color-indigo: rgba(2, 62, 153, 1);
+    --color-indigo-light: rgba(163, 195, 255, 1);
+    --color--informative: rgba(37, 99, 235, 1);
+    --color--informative-light: rgba(83, 178, 255, 1);
+    --color--negative: rgba(220, 38, 38, 1);
+    --color--negative-light: rgba(255, 99, 99, 1);
+    --color--notice: rgba(251, 191, 36, 1);
+    --color--notice-light: rgba(255, 219, 127, 1);
+    --color--positive: rgba(34, 197, 94, 1);
+    --color--positive-light: rgba(98, 236, 149, 1);
+    --color-fuchsia: rgba(253, 40, 236, 1);
+    --color-fuchsia-light: rgba(255, 135, 245, 1);
+
 
     --color-white: #ffffff;
     --grey-50: #f9fafb;
@@ -37,8 +38,8 @@
     --grey-800: #1f2937;
 
     --state-disabled: var(--grey-400);
-    --state-hover: var(--color-primary-10b);
-    --state-active: var(--color-primary-10b);
+    --state-hover: rgba(0, 0, 0, 0.1);
+    --state-active: rgba(0, 0, 0, 0.1);
 
     --dim-1: rgba(0, 0, 0, 0.5);
     --dim-2: rgba(0, 0, 0, 0.7);
@@ -71,8 +72,10 @@
 
     --font-size-label: 10px;
     --line-height-label: 12px;
-}
 
+    --bg-primary-hover: linear-gradient(0deg, var(--state-hover), var(--state-hover)), linear-gradient(0deg, var(--color-primary), var(--color-primary));
+    --bg-primary-active: linear-gradient(0deg, var(--state-hover), var(--state-hover)), linear-gradient(0deg, var(--color-primary-10), var(--color-primary-10));
+}
 
 .heading-b {
     font-size: var(--font-size-heading);
@@ -217,4 +220,58 @@
     font-size: var(--font-size-label);
     font-weight: var(--font-weight-regular);
     line-height: var(--line-height-label);
+}
+
+.btn {
+    min-width: 88px;
+    height: 48px;
+    border-radius: 5px;
+
+    padding: 12px 16px;
+
+    font-size: var(--font-size-sub-title);
+    font-weight: var(--font-weight-semi-bold);
+    line-height: var(--line-height-sub-title);
+}
+.btn-primary {
+    background: var(--color-primary);
+    color: var(--color-white);
+}
+.btn-primary:disabled {
+    background: var(--state-disabled);
+    color: var(--grey-300);
+}
+.btn-primary:hover {
+    background: linear-gradient(0deg, var(--state-hover), var(--state-hover)), linear-gradient(0deg, var(--color-primary), var(--color-primary));
+    color: var(--color-white);
+}
+.btn-primary:active {
+    background: linear-gradient(0deg, var(--state-hover), var(--state-hover)), linear-gradient(0deg, var(--color-primary), var(--color-primary));
+    color: var(--color-white);
+}
+.btn-primary:focus {
+    background: var(--color-primary);
+    color: var(--color-white);
+    border: 1.5px solid var(--color-fuchsia)
+}
+.btn-secondary {
+    background: var(--color-primary-10);
+    color: var(--color-primary);
+}
+.btn-secondary:disabled {
+    background: var(--grey-200);
+    color: var(--state-disabled);
+}
+.btn-secondary:hover {
+    background: linear-gradient(0deg, var(--state-hover), var(--state-hover)), linear-gradient(0deg, var(--color-primary-10), var(--color-primary-10));
+    color: var(--color-primary);
+}
+.btn-secondary:active {
+    background: linear-gradient(0deg, var(--state-hover), var(--state-hover)), linear-gradient(0deg, var(--color-primary-10), var(--color-primary-10));
+    color: var(--color-primary);
+}
+.btn-secondary:focus {
+    background: var(--color-primary-10);
+    color: var(--color-primary);
+    border: 1.5px solid var(--color-fuchsia)
 }
