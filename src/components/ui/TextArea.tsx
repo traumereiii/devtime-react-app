@@ -1,13 +1,15 @@
 interface TextAreaProps {
-  placeholder: string;
+  placeholder?: string;
   value: string;
-  onChange: (value: string) => void;
+  onChange?: (value: string) => void;
+  readonly?: boolean;
 }
 
 export default function TextArea({
   value,
   onChange,
   placeholder,
+  readonly,
 }: TextAreaProps) {
   const classes = `
     bg-[var(--grey-50)] w-[568px] h-[84px]
@@ -22,9 +24,14 @@ export default function TextArea({
   return (
     <textarea
       value={value}
-      onChange={(e) => onChange(e.target.value)}
+      onChange={(e) => {
+        if (onChange) {
+          onChange(e.target.value);
+        }
+      }}
       className={classes}
-      placeholder={placeholder}
+      placeholder={placeholder !== undefined ? placeholder : ""}
+      readOnly={readonly !== undefined ? readonly : false}
     ></textarea>
   );
 }
