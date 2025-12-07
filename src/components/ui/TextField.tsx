@@ -17,6 +17,7 @@ interface TextFieldAction {
 
 interface TextFieldProps {
   label: string;
+  type: TextFieldInputType;
   value: string;
   onChange: (value: string) => void;
   validate?: (value: string) => TextFieldValidateResult;
@@ -28,6 +29,7 @@ interface TextFieldProps {
 export default function TextField({
   label,
   onChange,
+  type,
   value,
   placeholder,
   action,
@@ -48,6 +50,7 @@ export default function TextField({
       <label>{label}</label>
       <div className="flex gap-[12px]">
         <TextFieldInput
+          type={type}
           value={value}
           onChange={(newVal) => {
             onChange(newVal);
@@ -74,16 +77,25 @@ export default function TextField({
     </div>
   );
 }
+
+type TextFieldInputType = "text" | "password";
+
 interface TextFieldInputProps {
+  type: TextFieldInputType;
   value: string;
   onChange: (value: string) => void;
   placeholder: string;
 }
-function TextFieldInput({ value, onChange, placeholder }: TextFieldInputProps) {
+function TextFieldInput({
+  type,
+  value,
+  onChange,
+  placeholder,
+}: TextFieldInputProps) {
   return (
     <input
       className="text-field-input"
-      type="text"
+      type={type}
       placeholder={placeholder}
       value={value}
       onChange={(e) => onChange(e.target.value)}
