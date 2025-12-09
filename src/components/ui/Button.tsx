@@ -7,6 +7,7 @@ interface ButtonProps {
   children?: ReactNode;
   disabled?: boolean;
   onClick?: () => void;
+  width?: string;
 }
 
 export default function Button({
@@ -14,6 +15,7 @@ export default function Button({
   children,
   disabled,
   onClick,
+  width,
 }: ButtonProps) {
   return (
     <button
@@ -21,6 +23,7 @@ export default function Button({
       className={`btn btn-${variant}`}
       disabled={disabled !== undefined ? disabled : false}
       onClick={onClick}
+      style={{ width }}
     >
       {children}
     </button>
