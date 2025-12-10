@@ -1,12 +1,10 @@
-import type { ReactNode } from "react";
+import type { ReactNode, ButtonHTMLAttributes } from "react";
 
 type ButtonVariant = "primary" | "secondary";
 
-interface ButtonProps {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant: ButtonVariant;
   children?: ReactNode;
-  disabled?: boolean;
-  onClick?: () => void;
   width?: string;
 }
 
