@@ -1,9 +1,12 @@
 import AppRoutes from "./AppRoutes.tsx";
+import DialogProvider from "@/providers/DialogProvider.tsx";
 
 function App() {
   return (
     <>
-      <AppRoutes />
+      <DialogProvider>
+        <AppRoutes />
+      </DialogProvider>
     </>
   );
 }
