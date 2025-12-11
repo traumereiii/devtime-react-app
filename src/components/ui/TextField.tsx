@@ -16,12 +16,12 @@ interface TextFieldAction {
 }
 
 interface TextFieldProps {
-  label: string;
+  label?: string;
   type: TextFieldInputType;
   value: string;
   onChange: (value: string) => void;
   validate?: (value: string) => TextFieldValidateResult;
-  placeholder: string;
+  placeholder?: string;
   width: string;
   action?: TextFieldAction;
 }
@@ -47,7 +47,7 @@ export default function TextField({
 
   return (
     <div className="flex flex-col gap-[8px]" style={{ width }}>
-      <label>{label}</label>
+      {label && <label>{label}</label>}
       <div className="flex gap-[12px]">
         <TextFieldInput
           type={type}
@@ -84,7 +84,7 @@ interface TextFieldInputProps {
   type: TextFieldInputType;
   value: string;
   onChange: (value: string) => void;
-  placeholder: string;
+  placeholder?: string;
 }
 function TextFieldInput({
   type,
