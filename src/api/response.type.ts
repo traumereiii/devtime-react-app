@@ -29,3 +29,19 @@ export interface LoginResponse extends CommonResponse {
   isFirstLogin: boolean;
   isDuplicateLogin: boolean;
 }
+
+export interface FetchTechStackResponse {
+  results: TechStack[];
+}
+
+export interface TechStack {
+  id: number;
+  name: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateTechStackResponse {
+  message: string;
+  techStack: TechStack;
+}
