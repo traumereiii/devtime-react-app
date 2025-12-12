@@ -1,4 +1,4 @@
-import Logo from "@/assets/image/logo.png";
+import Logo from "@/assets/image/logo-white.png";
 import { useEffect, useState } from "react";
 import TextField, {
   type TextFiledValidator,
@@ -260,7 +260,7 @@ export default function SignUpPage() {
               dangerouslySetInnerHTML={{ __html: TERM }}
             ></div>
             <div className="mt-[36px]">
-              <Button variant="primary" onClick={handleJoinClick}>
+              <Button variant="primary" onClick={handleJoinClick} width="100%">
                 회원가입
               </Button>
             </div>

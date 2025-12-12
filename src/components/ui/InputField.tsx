@@ -1,10 +1,10 @@
+import type { InputHTMLAttributes } from "react";
+
 type InputFieldType = "text" | "password";
 
-interface InputFieldProps {
+interface InputFieldProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
-  placeholder: string;
   value: string;
-  onChange: (value: string) => void;
   type: InputFieldType;
   readonly?: boolean;
 }
@@ -33,7 +33,7 @@ export default function InputField({
         className={classes}
         type={type}
         value={value}
-        onChange={(e) => onChange(e.target.value)}
+        onChange={onChange}
         placeholder={placeholder}
         readOnly={readonly !== undefined ? readonly : false}
       />

@@ -4,3 +4,8 @@ export interface SignUpRequest {
   password: string;
   confirmPassword: string;
 }
+
+export interface LoginRequest {
+  email: string;
+  password: string;
+}

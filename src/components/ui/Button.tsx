@@ -1,12 +1,11 @@
-import type { ReactNode } from "react";
+import type { ReactNode, ButtonHTMLAttributes } from "react";
 
 type ButtonVariant = "primary" | "secondary";
 
-interface ButtonProps {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant: ButtonVariant;
   children?: ReactNode;
-  disabled?: boolean;
-  onClick?: () => void;
+  width?: string;
 }
 
 export default function Button({
@@ -14,6 +13,7 @@ export default function Button({
   children,
   disabled,
   onClick,
+  width,
 }: ButtonProps) {
   return (
     <button
@@ -21,6 +21,7 @@ export default function Button({
       className={`btn btn-${variant}`}
       disabled={disabled !== undefined ? disabled : false}
       onClick={onClick}
+      style={{ width }}
     >
       {children}
     </button>
