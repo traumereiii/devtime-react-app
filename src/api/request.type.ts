@@ -10,6 +10,14 @@ export interface LoginRequest {
   password: string;
 }
 
+export interface CreateProfile {
+  career: string;
+  purpose: string;
+  goal: string;
+  techStacks: string[];
+  profileImage: string;
+}
+
 export interface UpdateProfile {
   career: string;
   purpose: string;

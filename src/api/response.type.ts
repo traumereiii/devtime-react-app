@@ -12,6 +12,7 @@ export interface CheckNicknameResponse {
 
 export interface CommonResponse {
   success: boolean;
+  message?: string;
   error?: {
     message: string;
     statusCode: number;

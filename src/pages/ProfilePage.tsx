@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TextField, {
   type TextFiledValidator,
 } from "@/components/ui/TextField.tsx";
@@ -10,15 +10,25 @@ import Chip from "@/components/ui/Chip.tsx";
 import AddImage from "@/components/ui/AddImage.tsx";
 import Button from "@/components/ui/Button.tsx";
 import { fileToBase64 } from "@/lib/utils.ts";
-import { updateProfile } from "@/api/profile.ts";
+import { useDebounce } from "@/hooks/use-debounce.ts";
+import { fetchTechStacks } from "@/api/tech-stacks.ts";
+import { useCloseDialog, useOpenDialog } from "@/store/dialog.ts";
+import { createProfile } from "@/api/profile.ts";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const openDialog = useOpenDialog();
+  const closeDialog = useCloseDialog();
 
   const [career, setCareer] = useState("");
   const [purpose, setPurpose] = useState("");
   const [purposeSelf, setPurposeSelf] = useState("");
   const [goal, setGoal] = useState("");
+  const [techStackSearch, setTechStackSearch] = useState("");
+  const debouncedSearch = useDebounce(techStackSearch, 200);
+  const [techStackSearchResults, setTechStackSearchResults] = useState<
+    string[]
+  >([]);
   const [techStacks, setTechStacks] = useState<string[]>([]);
   const [profile, setProfile] = useState<File | null>(null);
   const [profileImage, setProfileImage] = useState("");
@@ -42,6 +52,17 @@ export default function ProfilePage() {
     }
   };
 
+  useEffect(() => {
+    console.log("debouncedSearch: ", debouncedSearch);
+    if (debouncedSearch) {
+      fetchTechStacks(debouncedSearch).then(({ results }) => {
+        setTechStackSearchResults(results.map((it) => it.name));
+      });
+    } else {
+      setTechStackSearchResults([]);
+    }
+  }, [debouncedSearch]);
+
   const handleProfileChange = async (file: File | null) => {
     if (!file) {
       setProfile(null);
@@ -57,9 +78,24 @@ export default function ProfilePage() {
   };
 
   const handleSaveClick = async () => {
-    console.log(career, purpose, goal, techStacks, profileImage);
+    const response = await createProfile({
+      career,
+      purpose,
+      goal,
+      techStacks,
+      profileImage,
+    });
 
-    await updateProfile({});
+    openDialog({
+      title: response.message!,
+      onPositive: {
+        label: "확인",
+        onClick: () => {
+          navigate("/");
+          closeDialog();
+        },
+      },
+    });
   };
 
   const canSubmit = career && purpose && goal && techStacks.length > 0;
@@ -130,7 +166,9 @@ export default function ProfilePage() {
             <div className="flex flex-col gap-[8px]">
               <Autocomplete
                 label="공부/사용 중인 기술 스택"
-                values={techStacks}
+                search={techStackSearch}
+                onSearchChange={setTechStackSearch}
+                values={techStackSearchResults}
                 onComplete={(techStack) =>
                   setTechStacks([...techStacks, techStack])
                 }
