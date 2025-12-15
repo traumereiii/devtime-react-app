@@ -9,11 +9,13 @@ import { useNavigate } from "react-router";
 import { isValidEmail } from "@/lib/utils.ts";
 import { login } from "@/api/auth.ts";
 import { useCloseDialog, useOpenDialog } from "@/store/dialog.ts";
+import { useAuthStore } from "@/store/auth.ts";
 
 export default function SignInPage() {
   const navigate = useNavigate();
   const openDialog = useOpenDialog();
   const closeDialog = useCloseDialog();
+  const authStore = useAuthStore();
 
   const [account, setAccount] = useState("");
   const [password, setPassword] = useState("");
@@ -46,6 +48,7 @@ export default function SignInPage() {
 
   const handleLoginClick = async () => {
     const loginResponse = await login({ email: account, password: password });
+    console.log("check: ", loginResponse);
     if (!loginResponse.success) {
       openDialog({
         title: "로그인 정보를 다시 확인해 주세요",
@@ -58,6 +61,14 @@ export default function SignInPage() {
       });
       return;
     }
+
+    // TOKEN_HOLDER.accessToken = loginResponse.accessToken;
+    // TOKEN_HOLDER.refreshToken = loginResponse.refreshToken;
+    authStore.actions.setToken(
+      loginResponse.accessToken,
+      loginResponse.refreshToken,
+    );
+
     if (loginResponse.isDuplicateLogin) {
       openDialog({
         title: "중복 로그인이 불가능합니다.",

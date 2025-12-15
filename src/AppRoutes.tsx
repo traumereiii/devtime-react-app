@@ -13,7 +13,7 @@ export default function AppRoutes() {
     <Routes>
       <Route element={<DefaultLayout />}>
         <Route path={"/"} element={<IndexPage />} />
-        <Route path={"/profile"} element={<ProfilePage />} />
+
         <Route path={"/timer"} element={<TimerPage />} />
         <Route path={"/dashboard"} element={<DashboardPage />} />
         <Route path={"/ranking"} element={<RankingPage />} />
@@ -21,6 +21,7 @@ export default function AppRoutes() {
 
       <Route path={"/sign-in"} element={<SignInPage />} />
       <Route path={"/sign-up"} element={<SignUpPage />} />
+      <Route path={"/profile"} element={<ProfilePage />} />
     </Routes>
   );
 }
