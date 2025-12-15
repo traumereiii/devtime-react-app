@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import TextField, {
   type TextFiledValidator,
-} from "@/components/ui/text-field/TextField.tsx";
+} from "@/components/ui/TextField.tsx";
 import Logo from "@/assets/image/logo-white.png";
 import Dropdown from "@/components/ui/Dropdown.tsx";
 import Autocomplete from "@/components/ui/Autocomplete.tsx";
@@ -10,9 +10,10 @@ import Chip from "@/components/ui/Chip.tsx";
 import AddImage from "@/components/ui/AddImage.tsx";
 import Button from "@/components/ui/Button.tsx";
 import { fileToBase64 } from "@/lib/utils.ts";
-import { updateProfile } from "@/api/profile.ts";
-import { useCloseDialog, useOpenDialog } from "@/store/dialog.ts";
 import { useDebounce } from "@/hooks/use-debounce.ts";
+import { fetchTechStacks } from "@/api/tech-stacks.ts";
+import { useCloseDialog, useOpenDialog } from "@/store/dialog.ts";
+import { createProfile } from "@/api/profile.ts";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
@@ -23,6 +24,11 @@ export default function ProfilePage() {
   const [purpose, setPurpose] = useState("");
   const [purposeSelf, setPurposeSelf] = useState("");
   const [goal, setGoal] = useState("");
+  const [techStackSearch, setTechStackSearch] = useState("");
+  const debouncedSearch = useDebounce(techStackSearch, 200);
+  const [techStackSearchResults, setTechStackSearchResults] = useState<
+    string[]
+  >([]);
   const [techStacks, setTechStacks] = useState<string[]>([]);
   const [profile, setProfile] = useState<File | null>(null);
   const [profileImage, setProfileImage] = useState("");
@@ -46,6 +52,17 @@ export default function ProfilePage() {
     }
   };
 
+  useEffect(() => {
+    console.log("debouncedSearch: ", debouncedSearch);
+    if (debouncedSearch) {
+      fetchTechStacks(debouncedSearch).then(({ results }) => {
+        setTechStackSearchResults(results.map((it) => it.name));
+      });
+    } else {
+      setTechStackSearchResults([]);
+    }
+  }, [debouncedSearch]);
+
   const handleProfileChange = async (file: File | null) => {
     if (!file) {
       setProfile(null);
@@ -57,15 +74,22 @@ export default function ProfilePage() {
   };
 
   const handleSkipClick = () => {
+    navigate("/");
+  };
+
+  const handleSaveClick = async () => {
+    const response = await createProfile({
+      career,
+      purpose,
+      goal,
+      techStacks,
+      profileImage,
+    });
+
     openDialog({
-      title: "프로필 설정을 건너뛸까요?",
-      body: "프로필을 설정하지 않을 경우 일부 기능 사용에 제한이 생길 수 있습니다. 그래도 픅로필 설정을 건너뛰시겠습니까?",
+      title: response.message!,
       onPositive: {
-        label: "계속 설정하기",
-        onClick: () => closeDialog(),
-      },
-      onNegative: {
-        label: "건너뛰기",
+        label: "확인",
         onClick: () => {
           navigate("/");
           closeDialog();
@@ -74,23 +98,7 @@ export default function ProfilePage() {
     });
   };
 
-  const handleSaveClick = async () => {
-    console.log(career, purpose, goal, techStacks, profileImage);
-
-    // await updateProfile({
-    //   career,
-    //   purpose,
-    //   goal,
-    //   techStacks,
-    //   profileImage,
-    // });
-  };
-
   const canSubmit = career && purpose && goal && techStacks.length > 0;
-  const [searchText, setSearchText] = useState("");
-  const debounced = useDebounce(searchText, 200);
-
-  useEffect(() => console.log(debounced), [debounced]);
 
   return (
     <div className="flex">
@@ -156,17 +164,11 @@ export default function ProfilePage() {
             />
 
             <div className="flex flex-col gap-[8px]">
-              <input
-                type="text"
-                value={searchText}
-                onChange={(e) => setSearchText(e.target.value)}
-              />
-            </div>
-
-            <div className="flex flex-col gap-[8px]">
               <Autocomplete
                 label="공부/사용 중인 기술 스택"
-                values={techStacks}
+                search={techStackSearch}
+                onSearchChange={setTechStackSearch}
+                values={techStackSearchResults}
                 onComplete={(techStack) =>
                   setTechStacks([...techStacks, techStack])
                 }

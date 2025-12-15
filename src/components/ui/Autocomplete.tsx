@@ -1,11 +1,9 @@
-import { type KeyboardEvent } from "react";
+import { useState, type KeyboardEvent } from "react";
 import Plus from "@/assets/icon/plus.svg";
 
 interface AutocompleteProps {
   label: string;
   placeholder?: string;
-  search: string;
-  onSearchChange: (value: string) => void;
   values: string[];
   onComplete: (value: string) => void;
 }
@@ -18,22 +16,20 @@ export default function Autocomplete({
   values,
   onComplete,
 }: AutocompleteProps) {
-  //const [search, setSearch] = useState("");
-  const filtered = search
-    ? values.filter((item) => item.startsWith(search))
-    : [];
-
   const handleComplete = (e: KeyboardEvent) => {
     if (e.key === "Enter") {
       onComplete(search);
-      onSearchChange("");
     }
+  };
+  const handleItemClick = (item: string) => {
+    onComplete(item);
+    onSearchChange("");
   };
 
   return (
     <div className="flex flex-col gap-[8px]">
       <div>{label}</div>
-      <div className="relative">
+      <div className="relative overflow-visible">
         <input
           value={search}
           onChange={(e) => onSearchChange(e.target.value)}
@@ -44,13 +40,13 @@ export default function Autocomplete({
         />
         {search && (
           <div
-            className="absolute left-0 right-0 mt-[8px]
-                        border border-[var(--grey-300)] rounded-[5px]
+            className="absolute z-[9999] left-0 right-0 mt-[8px]
+                        border border-[var(--grey-300)] rounded-[5px] bg-white
                         px-[12px] py-[16px] flex flex-col gap-[16px] cursor-pointer"
           >
-            {filtered.length > 0 ? (
-              filtered.map((item, index) => (
-                <div key={index}>
+            {[
+              ...values.map((item, index) => (
+                <div key={index} onClick={() => handleItemClick(item)}>
                   <span className="body-s text-[var(--grey-800)]">
                     {search}
                   </span>
@@ -58,15 +54,14 @@ export default function Autocomplete({
                     {item.substring(search.length)}
                   </span>
                 </div>
-              ))
-            ) : (
-              <div>
+              )),
+              <div onClick={() => handleItemClick(search)}>
                 <span className="body-s text-[var(--color--informative)] flex gap-[4px]">
                   <img src={Plus} alt="" />
                   Add New Item
                 </span>
-              </div>
-            )}
+              </div>,
+            ]}
           </div>
         )}
       </div>
