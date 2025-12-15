@@ -1,9 +1,11 @@
-import { useState, type KeyboardEvent } from "react";
+import { type KeyboardEvent } from "react";
 import Plus from "@/assets/icon/plus.svg";
 
 interface AutocompleteProps {
   label: string;
   placeholder?: string;
+  search: string;
+  onSearchChange: (value: string) => void;
   values: string[];
   onComplete: (value: string) => void;
 }
@@ -11,10 +13,12 @@ interface AutocompleteProps {
 export default function Autocomplete({
   label,
   placeholder,
+  search,
+  onSearchChange,
   values,
   onComplete,
 }: AutocompleteProps) {
-  const [search, setSearch] = useState("");
+  //const [search, setSearch] = useState("");
   const filtered = search
     ? values.filter((item) => item.startsWith(search))
     : [];
@@ -22,7 +26,7 @@ export default function Autocomplete({
   const handleComplete = (e: KeyboardEvent) => {
     if (e.key === "Enter") {
       onComplete(search);
-      setSearch("");
+      onSearchChange("");
     }
   };
 
@@ -32,7 +36,7 @@ export default function Autocomplete({
       <div className="relative">
         <input
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => onSearchChange(e.target.value)}
           onKeyDown={(e) => handleComplete(e)}
           type="text"
           className="bg-[var(--grey-50)] h-[44px] w-full text-[var(--grey-300)] px-[12px] py-[16px]"

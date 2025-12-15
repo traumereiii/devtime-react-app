@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TextField, {
   type TextFiledValidator,
-} from "@/components/ui/TextField.tsx";
+} from "@/components/ui/text-field/TextField.tsx";
 import Logo from "@/assets/image/logo-white.png";
 import Dropdown from "@/components/ui/Dropdown.tsx";
 import Autocomplete from "@/components/ui/Autocomplete.tsx";
@@ -11,9 +11,13 @@ import AddImage from "@/components/ui/AddImage.tsx";
 import Button from "@/components/ui/Button.tsx";
 import { fileToBase64 } from "@/lib/utils.ts";
 import { updateProfile } from "@/api/profile.ts";
+import { useCloseDialog, useOpenDialog } from "@/store/dialog.ts";
+import { useDebounce } from "@/hooks/use-debounce.ts";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
+  const openDialog = useOpenDialog();
+  const closeDialog = useCloseDialog();
 
   const [career, setCareer] = useState("");
   const [purpose, setPurpose] = useState("");
@@ -53,16 +57,40 @@ export default function ProfilePage() {
   };
 
   const handleSkipClick = () => {
-    navigate("/");
+    openDialog({
+      title: "프로필 설정을 건너뛸까요?",
+      body: "프로필을 설정하지 않을 경우 일부 기능 사용에 제한이 생길 수 있습니다. 그래도 픅로필 설정을 건너뛰시겠습니까?",
+      onPositive: {
+        label: "계속 설정하기",
+        onClick: () => closeDialog(),
+      },
+      onNegative: {
+        label: "건너뛰기",
+        onClick: () => {
+          navigate("/");
+          closeDialog();
+        },
+      },
+    });
   };
 
   const handleSaveClick = async () => {
     console.log(career, purpose, goal, techStacks, profileImage);
 
-    await updateProfile({});
+    // await updateProfile({
+    //   career,
+    //   purpose,
+    //   goal,
+    //   techStacks,
+    //   profileImage,
+    // });
   };
 
   const canSubmit = career && purpose && goal && techStacks.length > 0;
+  const [searchText, setSearchText] = useState("");
+  const debounced = useDebounce(searchText, 200);
+
+  useEffect(() => console.log(debounced), [debounced]);
 
   return (
     <div className="flex">
@@ -126,6 +154,14 @@ export default function ProfilePage() {
               onChange={setGoal}
               validate={goalValidate}
             />
+
+            <div className="flex flex-col gap-[8px]">
+              <input
+                type="text"
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+              />
+            </div>
 
             <div className="flex flex-col gap-[8px]">
               <Autocomplete

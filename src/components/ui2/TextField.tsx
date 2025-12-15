@@ -24,9 +24,11 @@ interface TextFieldProps {
   placeholder?: string;
   width: string;
   action?: TextFieldAction;
+  prepend?: ReactNode;
+  append: ReactNode;
 }
 
-export default function TextField({
+export function TextField({
   label,
   onChange,
   type,
@@ -130,10 +132,9 @@ interface TextFieldHelperTextProps {
   variant: TextFieldHelperTextVariant;
   children?: ReactNode;
 }
-function TextFieldHelperText({ variant, children }: TextFieldHelperTextProps) {
-  return (
-    <p className={`text-field-helper-text text-field-helper-text-${variant}`}>
-      {children}
-    </p>
-  );
-}
+export const TextFieldHelperText = ({
+  variant,
+  children,
+}: TextFieldHelperTextProps) => {
+  return <p className={`caption text-${variant}`}>{children}</p>;
+};

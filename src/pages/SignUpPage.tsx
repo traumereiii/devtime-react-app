@@ -2,16 +2,53 @@ import Logo from "@/assets/image/logo-white.png";
 import { useEffect, useState } from "react";
 import TextField, {
   type TextFiledValidator,
-} from "@/components/ui/TextField.tsx";
+} from "@/components/ui/text-field/TextField.tsx";
 import CheckBox from "@/components/ui/CheckBox.tsx";
 import { TERM } from "@/lib/constants.ts";
 import Button from "@/components/ui/Button.tsx";
 import { isValidEmail } from "@/lib/utils.ts";
 import { checkEmail, checkNickname, signUp } from "@/api/sign-up.ts";
 import { useNavigate } from "react-router";
+import type { AxiosError } from "axios";
+import type { ErrorResponse } from "@/api/response.type.ts";
+
+type ValidationItem = {
+  type: "informative" | "negative" | "primary";
+  message: string;
+  status: boolean;
+  checked: boolean;
+  focus: boolean;
+};
+
+type ValidationState = Record<string, ValidationItem>;
 
 export default function SignUpPage() {
   const navigate = useNavigate();
+
+  const [form, setForm] = useState({
+    email: "",
+    nickname: "",
+    password: "",
+    passwordConfirm: "",
+    agree: false,
+  });
+
+  const [validation, setValidation] = useState<ValidationState>({
+    email: {
+      type: "informative",
+      message: "",
+      status: false,
+      checked: false,
+      focus: false,
+    },
+    nickname: {
+      type: "informative",
+      message: "",
+      status: false,
+      checked: false,
+      focus: false,
+    },
+  });
 
   const [email, setEmail] = useState("");
   const [isPassedEmailCheck, setIsPassedEmailCheck] = useState(false);
@@ -27,16 +64,53 @@ export default function SignUpPage() {
   const [passwordCheck, setPasswordCheck] = useState("");
   const [isAgreeTerm, setIsAgreeTerm] = useState(false);
 
-  const onEmailActionClick = async (value: string) => {
-    const checkResult = await checkEmail(value);
-    if (checkResult) {
-      setIsEmailDuplicated(false);
-      setIsPassedEmailCheck(true);
-    } else {
-      setIsEmailDuplicated(true);
-      setIsPassedEmailCheck(false);
+  /** 이메일 **/
+  const onEmailActionClick = async () => {
+    try {
+      const checkResult = await checkEmail(form.email);
+
+      if (checkResult.available) {
+        setValidation({
+          ...validation,
+          email: {
+            type: "primary",
+            message: "사용 가능한 이메일입니다.",
+            status: true,
+            checked: true,
+            focus: false,
+          },
+        });
+      } else {
+        setValidation({
+          ...validation,
+          email: {
+            type: "negative",
+            message: checkResult.message,
+            status: true,
+            checked: true,
+            focus: false,
+          },
+        });
+      }
+    } catch (e) {
+      const axiosError = e as AxiosError;
+      const response = axiosError?.response?.data as ErrorResponse;
+      setValidation({
+        ...validation,
+        email: {
+          type: "negative",
+          message: response.error.message,
+          status: true,
+          checked: true,
+          focus: false,
+        },
+      });
     }
   };
+
+  useEffect(() => {
+    console.log("form.email changed:", form.email);
+  }, [form.email]);
 
   /** 이메일 **/
   const emailValidate: TextFiledValidator = (value: string) => {
@@ -185,7 +259,30 @@ export default function SignUpPage() {
         <div className="flex flex-col">
           <div className="text-primary heading-b text-center">회원가입</div>
 
-          <div className="flex flex-col gap-[40px] mt-[36px]">
+          <div className="flex flex-col gap-[40px] mt-[36px] w-[420px]">
+            <TextField
+              value={form.email}
+              setValue={(value) => setForm({ ...form, email: value })}
+            >
+              <TextField.Label>이메일</TextField.Label>
+              <TextField.Input
+                placeholder="이메일 주소 형식으로 입력해 주세요."
+                type="text"
+                className="gap-4"
+              >
+                <Button
+                  variant="primary"
+                  className="body-small-s"
+                  onClick={onEmailActionClick}
+                >
+                  중복확인
+                </Button>
+              </TextField.Input>
+              <TextField.HelperText variant={validation.email.type}>
+                {validation.email.message}
+              </TextField.HelperText>
+            </TextField>
+
             <TextField
               label="아이디"
               placeholder="이메일 주소 형식으로 입력해 주세요."

@@ -3,7 +3,7 @@ import SymbolLogo from "@/assets/image/symbol-logo.png";
 import Button from "@/components/ui/Button.tsx";
 import TextField, {
   type TextFiledValidator,
-} from "@/components/ui/TextField.tsx";
+} from "@/components/ui/text-field/TextField.tsx";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import { isValidEmail } from "@/lib/utils.ts";

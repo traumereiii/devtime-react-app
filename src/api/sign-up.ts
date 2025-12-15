@@ -2,29 +2,32 @@ import { api } from "@/api/index.ts";
 import type {
   CheckEmailResponse,
   CheckNicknameResponse,
+  ErrorResponse,
   SignUpResponse,
 } from "@/api/response.type.ts";
 import type { SignUpRequest } from "@/api/request.type.ts";
 import type { AxiosError } from "axios";
 
-export async function checkEmail(email: string): Promise<boolean> {
+export async function checkEmail(email: string): Promise<CheckEmailResponse> {
   const { data } = await api.get<CheckEmailResponse>(
     "/api/signup/check-email",
     {
       params: { email },
     },
   );
-  return data.available;
+  return data;
 }
 
-export async function checkNickname(nickname: string): Promise<boolean> {
+export async function checkNickname(
+  nickname: string,
+): Promise<CheckNicknameResponse> {
   const { data } = await api.get<CheckNicknameResponse>(
     "/api/signup/check-nickname",
     {
       params: { nickname },
     },
   );
-  return data.available;
+  return data;
 }
 
 export async function signUp(request: SignUpRequest) {

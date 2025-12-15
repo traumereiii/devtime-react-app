@@ -14,11 +14,12 @@ export default function Button({
   disabled,
   onClick,
   width,
+  className,
 }: ButtonProps) {
   return (
     <button
       type="button"
-      className={`btn btn-${variant}`}
+      className={`btn btn-${variant} ${className}`}
       disabled={disabled !== undefined ? disabled : false}
       onClick={onClick}
       style={{ width }}
