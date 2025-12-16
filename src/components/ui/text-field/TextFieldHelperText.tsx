@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
 
-type TextFieldHelperTextVariant = "informative" | "negative" | "primary";
+type TextFieldHelperTextVariant = "informative" | "positive" | "negative";
 
 interface TextFieldHelperTextProps {
   variant: TextFieldHelperTextVariant;
@@ -12,5 +12,15 @@ export default function TextFieldHelperText({
   children,
 }: TextFieldHelperTextProps) {
   if (!children) return null;
-  return <p className={`caption text-${variant}`}>{children}</p>;
+
+  switch (variant) {
+    case "informative":
+      return <p className={`caption text-informative`}>{children}</p>;
+    case "positive":
+      return <p className={`caption text-positive`}>{children}</p>;
+    case "negative":
+      return <p className={`caption text-negative`}>{children}</p>;
+    default:
+      break;
+  }
 }
