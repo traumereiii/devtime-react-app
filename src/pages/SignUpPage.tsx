@@ -1,19 +1,16 @@
 import Logo from "@/assets/image/logo-white.png";
 import { useEffect, useState } from "react";
-import TextField, {
-  type TextFiledValidator,
-} from "@/components/ui/text-field/TextField.tsx";
+import TextField from "@/components/ui/text-field/TextField.tsx";
 import CheckBox from "@/components/ui/CheckBox.tsx";
-import { TERM } from "@/lib/constants.ts";
+import { EMAIL_REG_EXP, PASSWORD_REG_EXP, TERM } from "@/lib/constants.ts";
 import Button from "@/components/ui/Button.tsx";
-import { isValidEmail } from "@/lib/utils.ts";
 import { checkEmail, checkNickname, signUp } from "@/api/sign-up.ts";
 import { useNavigate } from "react-router";
-import type { AxiosError } from "axios";
+import { isAxiosError } from "axios";
 import type { ErrorResponse } from "@/api/response.type.ts";
 
 type ValidationItem = {
-  type: "informative" | "negative" | "primary";
+  type: "informative" | "positive" | "negative";
   message: string;
   status: boolean;
   checked: boolean;
@@ -48,196 +45,244 @@ export default function SignUpPage() {
       checked: false,
       focus: false,
     },
+    password: {
+      type: "informative",
+      message: "",
+      status: false,
+      checked: false,
+      focus: false,
+    },
+    passwordConfirm: {
+      type: "informative",
+      message: "",
+      status: false,
+      checked: false,
+      focus: false,
+    },
   });
 
-  const [email, setEmail] = useState("");
-  const [isPassedEmailCheck, setIsPassedEmailCheck] = useState(false);
-  const [isEmailDuplicated, setIsEmailDuplicated] = useState<
-    boolean | undefined
-  >();
-  const [nickname, setNickname] = useState("");
-  const [isPassedNicknameCheck, setIsPassedNicknameCheck] = useState(false);
-  const [isNicknameDuplicated, setIsNicknameDuplicated] = useState<
-    boolean | undefined
-  >();
-  const [password, setPassword] = useState("");
-  const [passwordCheck, setPasswordCheck] = useState("");
-  const [isAgreeTerm, setIsAgreeTerm] = useState(false);
+  const canSubmit =
+    Object.values(validation).find((it) => !it.status) === undefined &&
+    form.agree;
 
   /** 이메일 **/
-  const onEmailActionClick = async () => {
+  const onEmailCheckClick = async () => {
     try {
       const checkResult = await checkEmail(form.email);
 
-      if (checkResult.available) {
-        setValidation({
-          ...validation,
-          email: {
-            type: "primary",
-            message: "사용 가능한 이메일입니다.",
-            status: true,
-            checked: true,
-            focus: false,
-          },
-        });
-      } else {
-        setValidation({
-          ...validation,
-          email: {
-            type: "negative",
-            message: checkResult.message,
-            status: true,
-            checked: true,
-            focus: false,
-          },
-        });
-      }
-    } catch (e) {
-      const axiosError = e as AxiosError;
-      const response = axiosError?.response?.data as ErrorResponse;
-      setValidation({
-        ...validation,
+      setValidation((prev) => ({
+        ...prev,
         email: {
-          type: "negative",
-          message: response.error.message,
-          status: true,
-          checked: true,
-          focus: false,
+          ...prev.email,
+          type: checkResult.available ? "positive" : "negative",
+          message: checkResult.message,
+          status: checkResult.available,
+          checked: checkResult.available,
         },
-      });
+      }));
+    } catch (e) {
+      if (isAxiosError(e)) {
+        const response = e.response?.data as ErrorResponse;
+        setValidation((prev) => ({
+          ...prev,
+          email: {
+            ...prev.email,
+            type: "negative",
+            message: response.error.message,
+            status: false,
+            checked: true,
+          },
+        }));
+      }
     }
   };
-
   useEffect(() => {
-    console.log("form.email changed:", form.email);
+    if (!form.email) {
+      setValidation((prev) => ({
+        ...prev,
+        email: {
+          ...prev.email,
+          type: "informative",
+          message: "",
+        },
+      }));
+      return;
+    }
+    if (!EMAIL_REG_EXP.test(form.email)) {
+      setValidation((prev) => ({
+        ...prev,
+        email: {
+          ...prev.email,
+          type: "negative",
+          message: "이메일 형식으로 작성해 주세요.",
+        },
+      }));
+      return;
+    }
+
+    if (!validation.email.checked) {
+      setValidation((prev) => ({
+        ...prev,
+        email: {
+          ...prev.email,
+          type: "negative",
+          message: "중복을 확인해 주세요.",
+        },
+      }));
+      return;
+    }
   }, [form.email]);
 
-  /** 이메일 **/
-  const emailValidate: TextFiledValidator = (value: string) => {
-    if (isPassedEmailCheck) {
-      return { type: "success", message: "사용 가능한 이메일입니다." };
-    }
-    if (isEmailDuplicated) {
-      return { type: "error", message: "이미 사용중인 이메일입니다." };
-    }
-    if (!value) {
-      return { type: "error", message: "이메일 형식으로 작성해 주세요." };
-    }
-    if (value.trim().length === 0) {
-      return { type: "error", message: "이메일 형식으로 작성해 주세요." };
-    }
-    if (!isValidEmail(value)) {
-      return { type: "error", message: "이메일 형식으로 작성해 주세요." };
-    }
-
-    return { type: "error", message: "중복을 확인해주세요." };
-  };
-  useEffect(() => {
-    setIsPassedEmailCheck(false);
-    setIsEmailDuplicated(undefined);
-  }, [email]);
-
   /** 닉네임 **/
-  const onNicknameActionClick = async (value: string) => {
-    const checkResult = await checkNickname(value);
-    if (checkResult) {
-      setIsNicknameDuplicated(false);
-      setIsPassedNicknameCheck(true);
-    } else {
-      setIsNicknameDuplicated(true);
-      setIsPassedNicknameCheck(false);
-    }
-  };
-  const nicknameValidate: TextFiledValidator = (value: string) => {
-    if (isPassedNicknameCheck) {
-      return { type: "success", message: "사용 가능한 닉네임입니다." };
-    }
-    if (isNicknameDuplicated) {
-      return { type: "error", message: "이미 사용중인 닉네임입니다." };
-    }
-    if (!value) {
-      return { type: "error", message: "닉네임을 입력해 주세요." };
-    }
+  const onNicknameCheckClick = async () => {
+    try {
+      const checkResult = await checkNickname(form.nickname);
 
-    return { type: "error", message: "중복을 확인해주세요." };
+      setValidation((prev) => ({
+        ...prev,
+        nickname: {
+          ...prev.nickname,
+          type: checkResult.available ? "positive" : "negative",
+          message: checkResult.message,
+          status: checkResult.available,
+          checked: checkResult.available,
+        },
+      }));
+    } catch (e) {
+      if (isAxiosError(e)) {
+        const response = e.response?.data as ErrorResponse;
+        setValidation((prev) => ({
+          ...prev,
+          nickname: {
+            ...prev.nickname,
+            type: "negative",
+            message: response.error.message,
+            status: false,
+            checked: true,
+          },
+        }));
+      }
+    }
   };
+
   useEffect(() => {
-    setIsPassedNicknameCheck(false);
-    setIsNicknameDuplicated(undefined);
-  }, [nickname]);
-
-  /** 패스워드 **/
-  const passwordValidate: TextFiledValidator = (value: string) => {
-    if (!value) {
-      return {
-        type: "error",
-        message: "비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다.",
-      };
+    if (!form.nickname) {
+      setValidation((prev) => ({
+        ...prev,
+        nickname: {
+          ...prev.nickname,
+          type: "informative",
+          message: "",
+          status: false,
+        },
+      }));
+      return;
     }
 
-    if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value)) {
-      return {
-        type: "error",
-        message: "비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다.",
-      };
+    if (!validation.nickname.checked) {
+      setValidation((prev) => ({
+        ...prev,
+        nickname: {
+          ...prev.nickname,
+          type: "negative",
+          message: "중복을 확인해 주세요.",
+          status: false,
+        },
+      }));
+      return;
     }
-  };
+  }, [form.nickname]);
 
-  /** 패스워드 확인 **/
-  const passwordCheckValidate: TextFiledValidator = (value: string) => {
-    if (!value) {
-      return {
-        type: "error",
-        message: "비밀번호가 일치하지 않습니다.",
-      };
-    }
-    if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(value)) {
-      return {
-        type: "error",
-        message: "비밀번호가 일치하지 않습니다.",
-      };
+  /** 비밀번호 **/
+  useEffect(() => {
+    if (!form.password) {
+      setValidation((prev) => ({
+        ...prev,
+        password: {
+          ...prev.password,
+          type: "informative",
+          message: "",
+          status: false,
+        },
+      }));
+      return;
     }
 
-    if (password !== value) {
-      return {
-        type: "error",
-        message: "비밀번호가 일치하지 않습니다.",
-      };
+    if (!PASSWORD_REG_EXP.test(form.password)) {
+      setValidation((prev) => ({
+        ...prev,
+        password: {
+          ...prev.password,
+          type: "negative",
+          message: "비밀번호는 8자 이상, 영문과 숫자 조합이어야 합니다.",
+          status: false,
+        },
+      }));
+    } else {
+      setValidation((prev) => ({
+        ...prev,
+        password: {
+          ...prev.password,
+          type: "informative",
+          message: "",
+          status: true,
+        },
+      }));
     }
-  };
+  }, [form.password]);
 
-  const isAllPassedValidation = () => {
-    const passEmail = emailValidate(email)?.type === "success";
-    const passNickname = nicknameValidate(nickname)?.type === "success";
-    const passPassword = passwordValidate(password) === undefined;
-    const passPasswordCheck =
-      passwordCheckValidate(passwordCheck) === undefined;
-    return (
-      passEmail &&
-      passNickname &&
-      passPassword &&
-      passPasswordCheck &&
-      isAgreeTerm
-    );
-  };
+  /** 비밀번호 확인 **/
+  useEffect(() => {
+    if (!form.passwordConfirm) {
+      setValidation((prev) => ({
+        ...prev,
+        passwordConfirm: {
+          ...prev.passwordConfirm,
+          type: "informative",
+          message: "",
+          status: false,
+        },
+      }));
+      return;
+    }
+
+    if (form.password !== form.passwordConfirm) {
+      setValidation((prev) => ({
+        ...prev,
+        passwordConfirm: {
+          ...prev.passwordConfirm,
+          type: "negative",
+          message: "비밀번호가 일치하지 않습니다.",
+          status: false,
+        },
+      }));
+    } else {
+      setValidation((prev) => ({
+        ...prev,
+        passwordConfirm: {
+          ...prev.passwordConfirm,
+          type: "informative",
+          message: "",
+          status: true,
+        },
+      }));
+    }
+  }, [form.passwordConfirm]);
 
   const handleJoinClick = async () => {
-    const isAllPass = isAllPassedValidation();
-    if (isAllPass) {
-      const response = await signUp({
-        email,
-        nickname,
-        password,
-        confirmPassword: passwordCheck,
-      });
+    const response = await signUp({
+      email: form.email,
+      nickname: form.nickname,
+      password: form.password,
+      confirmPassword: form.passwordConfirm,
+    });
 
-      if (response.success) {
-        alert("회원 가입에 성공했습니다.");
-        navigate("/sign-in");
-      } else {
-        const message = response.error?.message;
-        alert(message);
-      }
+    if (response.success) {
+      alert("회원 가입에 성공했습니다.");
+      navigate("/sign-in");
+    } else {
+      const message = response.error?.message;
+      alert(message);
     }
   };
 
@@ -269,11 +314,17 @@ export default function SignUpPage() {
                 placeholder="이메일 주소 형식으로 입력해 주세요."
                 type="text"
                 className="gap-4"
+                onFocus={() =>
+                  setValidation((prev) => ({
+                    ...prev,
+                    email: { ...prev.email, focus: true },
+                  }))
+                }
               >
                 <Button
                   variant="primary"
                   className="body-small-s"
-                  onClick={onEmailActionClick}
+                  onClick={onEmailCheckClick}
                 >
                   중복확인
                 </Button>
@@ -284,51 +335,55 @@ export default function SignUpPage() {
             </TextField>
 
             <TextField
-              label="아이디"
-              placeholder="이메일 주소 형식으로 입력해 주세요."
-              type="text"
-              width="420px"
-              value={email}
-              onChange={setEmail}
-              action={{
-                label: "중복확인",
-                onClick: onEmailActionClick,
-                disabled: !email,
-              }}
-              validate={emailValidate}
-            />
+              value={form.nickname}
+              setValue={(value) => setForm({ ...form, nickname: value })}
+            >
+              <TextField.Label>닉네임</TextField.Label>
+              <TextField.Input
+                placeholder="닉네임을 입력해 주세요."
+                type="text"
+                className="gap-4"
+              >
+                <Button
+                  variant="primary"
+                  className="body-small-s"
+                  onClick={onNicknameCheckClick}
+                >
+                  중복확인
+                </Button>
+              </TextField.Input>
+              <TextField.HelperText variant={validation.nickname.type}>
+                {validation.nickname.message}
+              </TextField.HelperText>
+            </TextField>
+
             <TextField
-              label="닉네임"
-              placeholder="닉네임을 입력해 주세요."
-              type="text"
-              width="420px"
-              value={nickname}
-              onChange={setNickname}
-              action={{
-                label: "중복확인",
-                onClick: onNicknameActionClick,
-                disabled: !nickname,
-              }}
-              validate={nicknameValidate}
-            />
+              value={form.password}
+              setValue={(value) => setForm({ ...form, password: value })}
+            >
+              <TextField.Label>비밀번호</TextField.Label>
+              <TextField.Input
+                placeholder="비밀번호를 입력해 주세요."
+                type="password"
+              />
+              <TextField.HelperText variant={validation.password.type}>
+                {validation.password.message}
+              </TextField.HelperText>
+            </TextField>
+
             <TextField
-              label="비밀번호"
-              placeholder="비밀번호를 입력해 주세요."
-              type="password"
-              width="420px"
-              value={password}
-              onChange={setPassword}
-              validate={passwordValidate}
-            />
-            <TextField
-              label="비밀번호 확인"
-              placeholder="비밀번호를 다시 입력해 주세요."
-              type="password"
-              width="420px"
-              value={passwordCheck}
-              onChange={setPasswordCheck}
-              validate={passwordCheckValidate}
-            />
+              value={form.passwordConfirm}
+              setValue={(value) => setForm({ ...form, passwordConfirm: value })}
+            >
+              <TextField.Label>비밀번호 확인</TextField.Label>
+              <TextField.Input
+                placeholder="비밀번호를 다시 입력해 주세요."
+                type="password"
+              />
+              <TextField.HelperText variant={validation.passwordConfirm.type}>
+                {validation.passwordConfirm.message}
+              </TextField.HelperText>
+            </TextField>
           </div>
 
           <div className="w-[420px] mt-[60px]">
@@ -336,11 +391,16 @@ export default function SignUpPage() {
               <div className="body-small">이용약관</div>
               <div className="flex gap-[4px]">
                 <p
-                  className={`body-small ${isAgreeTerm ? "text-primary" : "text-primary-30"}`}
+                  className={`body-small ${form.agree ? "text-primary" : "text-primary-30"}`}
                 >
                   동의함
                 </p>
-                <CheckBox value={isAgreeTerm} onChange={setIsAgreeTerm} />
+                <CheckBox
+                  value={form.agree}
+                  onChange={(value) =>
+                    setForm((prev) => ({ ...prev, agree: value }))
+                  }
+                />
               </div>
             </div>
             <div
@@ -357,7 +417,13 @@ export default function SignUpPage() {
               dangerouslySetInnerHTML={{ __html: TERM }}
             ></div>
             <div className="mt-[36px]">
-              <Button variant="primary" onClick={handleJoinClick} width="100%">
+              <Button
+                variant="primary"
+                onClick={handleJoinClick}
+                width="100%"
+                className="sub-title-s"
+                disabled={!canSubmit}
+              >
                 회원가입
               </Button>
             </div>

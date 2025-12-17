@@ -225,12 +225,7 @@
 .btn {
     height: 48px;
     border-radius: 5px;
-
     padding: 12px 16px;
-
-    font-size: var(--font-size-sub-title);
-    font-weight: var(--font-weight-semi-bold);
-    line-height: var(--line-height-sub-title);
 }
 .btn-primary {
     background: var(--color-primary);
