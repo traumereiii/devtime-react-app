@@ -1,8 +1,8 @@
 import { useNavigate } from "react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import TextField, {
   type TextFiledValidator,
-} from "@/components/ui/TextField.tsx";
+} from "@/components/ui/text-field/TextField.tsx";
 import Logo from "@/assets/image/logo-white.png";
 import Dropdown from "@/components/ui/Dropdown.tsx";
 import Autocomplete from "@/components/ui/Autocomplete.tsx";
@@ -14,16 +14,38 @@ import { useDebounce } from "@/hooks/use-debounce.ts";
 import { fetchTechStacks } from "@/api/tech-stacks.ts";
 import { useCloseDialog, useOpenDialog } from "@/store/dialog.ts";
 import { createProfile } from "@/api/profile.ts";
+import type { ValidationState } from "@/types.ts";
 
 export default function ProfilePage() {
   const navigate = useNavigate();
   const openDialog = useOpenDialog();
   const closeDialog = useCloseDialog();
 
-  const [career, setCareer] = useState("");
-  const [purpose, setPurpose] = useState("");
-  const [purposeSelf, setPurposeSelf] = useState("");
-  const [goal, setGoal] = useState("");
+  const [form, setForm] = useState({
+    career: "",
+    purpose: "",
+    goal: "",
+    techStacks: [],
+    profileImage: "",
+  });
+
+  const [validation, setValidation] = useState<ValidationState>({
+    purpose: {
+      type: "informative",
+      message: "",
+      status: false,
+      checked: false,
+      focus: false,
+    },
+    goal: {
+      type: "informative",
+      message: "",
+      status: false,
+      checked: false,
+      focus: false,
+    },
+  });
+  const [showPurposeSelf, setShowPurposeSelf] = useState(false);
   const [techStackSearch, setTechStackSearch] = useState("");
   const debouncedSearch = useDebounce(techStackSearch, 200);
   const [techStackSearchResults, setTechStackSearchResults] = useState<
@@ -32,8 +54,11 @@ export default function ProfilePage() {
   const [techStacks, setTechStacks] = useState<string[]>([]);
   const [profile, setProfile] = useState<File | null>(null);
   const [profileImage, setProfileImage] = useState("");
+  const canSubmit =
+    form.career && form.purpose && form.goal && techStacks.length > 0;
 
   /****/
+
   const purposeSelfValidate: TextFiledValidator = (value: string) => {
     if (value.length > 0 && value.trim().length === 0) {
       return {
@@ -78,13 +103,7 @@ export default function ProfilePage() {
   };
 
   const handleSaveClick = async () => {
-    const response = await createProfile({
-      career,
-      purpose,
-      goal,
-      techStacks,
-      profileImage,
-    });
+    const response = await createProfile(form);
 
     openDialog({
       title: response.message!,
@@ -97,8 +116,6 @@ export default function ProfilePage() {
       },
     });
   };
-
-  const canSubmit = career && purpose && goal && techStacks.length > 0;
 
   return (
     <div className="flex">
@@ -125,7 +142,9 @@ export default function ProfilePage() {
                 { label: "8 - 10년", value: "8 - 10년" },
                 { label: "11년 이상", value: "11년 이상" },
               ]}
-              onChange={setCareer}
+              onChange={(value) =>
+                setForm((prev) => ({ ...prev, career: value }))
+              }
             />
             <Dropdown<string>
               label="공부 목적"
@@ -140,28 +159,50 @@ export default function ProfilePage() {
                 },
                 { label: "기타(직접 입력)", value: "기타(직접 입력)" },
               ]}
-              onChange={setPurpose}
+              onChange={(value) => {
+                if (value !== "기타(직접 입력)") {
+                  setForm((prev) => ({ ...prev, purpose: value }));
+                  setShowPurposeSelf(false);
+                } else {
+                  setForm((prev) => ({ ...prev, purpose: "" }));
+                  setShowPurposeSelf(true);
+                }
+              }}
             />
-            {purpose === "기타(직접 입력)" && (
+            {showPurposeSelf && (
               <TextField
-                placeholder=""
-                type="text"
-                width="420px"
-                value={purposeSelf}
-                onChange={setPurposeSelf}
-                validate={purposeSelfValidate}
-              />
+                value={form.purpose}
+                setValue={(value) => setForm({ ...form, purpose: value })}
+              >
+                <TextField.Input
+                  placeholder="공부 목적을 입력해 주세요."
+                  type="text"
+                  onFocus={() =>
+                    setValidation((prev) => ({
+                      ...prev,
+                      purpose: { ...prev.purpose, focus: true },
+                    }))
+                  }
+                />
+              </TextField>
             )}
 
             <TextField
-              label="공부 목표"
-              placeholder="공부 목표를 입력해 주세요."
-              type="text"
-              width="420px"
-              value={goal}
-              onChange={setGoal}
-              validate={goalValidate}
-            />
+              value={form.goal}
+              setValue={(value) => setForm({ ...form, goal: value })}
+            >
+              <TextField.Label>공부 목표</TextField.Label>
+              <TextField.Input
+                placeholder="공부 목표를 입력해 주세요."
+                type="text"
+                onFocus={() =>
+                  setValidation((prev) => ({
+                    ...prev,
+                    purpose: { ...prev.purpose, focus: true },
+                  }))
+                }
+              />
+            </TextField>
 
             <div className="flex flex-col gap-[8px]">
               <Autocomplete

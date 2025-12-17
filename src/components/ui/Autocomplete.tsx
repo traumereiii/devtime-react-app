@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent } from "react";
+import { type KeyboardEvent } from "react";
 import Plus from "@/assets/icon/plus.svg";
 
 interface AutocompleteProps {
