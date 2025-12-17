@@ -8,16 +8,7 @@ import { checkEmail, checkNickname, signUp } from "@/api/sign-up.ts";
 import { useNavigate } from "react-router";
 import { isAxiosError } from "axios";
 import type { ErrorResponse } from "@/api/response.type.ts";
-
-type ValidationItem = {
-  type: "informative" | "positive" | "negative";
-  message: string;
-  status: boolean;
-  checked: boolean;
-  focus: boolean;
-};
-
-type ValidationState = Record<string, ValidationItem>;
+import type { ValidationState } from "@/types.ts";
 
 export default function SignUpPage() {
   const navigate = useNavigate();
