@@ -2,7 +2,6 @@ import { api } from "@/api/index.ts";
 import type {
   CheckEmailResponse,
   CheckNicknameResponse,
-  ErrorResponse,
   SignUpResponse,
 } from "@/api/response.type.ts";
 import type { SignUpRequest } from "@/api/request.type.ts";
