@@ -4,12 +4,11 @@ import TextField from "@/components/ui/text-field/TextField.tsx";
 import CheckBox from "@/components/ui/CheckBox.tsx";
 import { EMAIL_REG_EXP, PASSWORD_REG_EXP, TERM } from "@/lib/constants.ts";
 import Button from "@/components/ui/Button.tsx";
-import { checkNickname, signUp } from "@/api/sign-up.ts";
+import { signUp } from "@/api/sign-up.ts";
 import { useNavigate } from "react-router";
-import { isAxiosError } from "axios";
-import type { ErrorResponse } from "@/api/response.type.ts";
 import type { ValidationState } from "@/types.ts";
 import { useCheckEmail } from "@/hooks/queries/use-check-email.ts";
+import { useCheckNickname } from "@/hooks/queries/use-check-nickname.ts";
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -54,6 +53,7 @@ export default function SignUpPage() {
   });
 
   const { refetch: checkEmail } = useCheckEmail(form.email);
+  const { refetch: checkNickname } = useCheckNickname(form.nickname);
 
   const canSubmit =
     Object.values(validation).find((it) => !it.status) === undefined &&
@@ -130,9 +130,29 @@ export default function SignUpPage() {
 
   /** 닉네임 **/
   const onNicknameCheckClick = async () => {
-    try {
-      const checkResult = await checkNickname(form.nickname);
+    const {
+      data: checkResult,
+      isSuccess,
+      isError,
+      error,
+    } = await checkNickname();
 
+    if (isError) {
+      const response = error.response?.data;
+      setValidation((prev) => ({
+        ...prev,
+        nickname: {
+          ...prev.nickname,
+          type: "negative",
+          message: response?.error.message!,
+          status: false,
+          checked: true,
+        },
+      }));
+      return;
+    }
+
+    if (isSuccess) {
       setValidation((prev) => ({
         ...prev,
         nickname: {
@@ -143,20 +163,6 @@ export default function SignUpPage() {
           checked: checkResult.available,
         },
       }));
-    } catch (e) {
-      if (isAxiosError(e)) {
-        const response = e.response?.data as ErrorResponse;
-        setValidation((prev) => ({
-          ...prev,
-          nickname: {
-            ...prev.nickname,
-            type: "negative",
-            message: response.error.message,
-            status: false,
-            checked: true,
-          },
-        }));
-      }
     }
   };
 
