@@ -4,11 +4,12 @@ import TextField from "@/components/ui/text-field/TextField.tsx";
 import CheckBox from "@/components/ui/CheckBox.tsx";
 import { EMAIL_REG_EXP, PASSWORD_REG_EXP, TERM } from "@/lib/constants.ts";
 import Button from "@/components/ui/Button.tsx";
-import { checkEmail, checkNickname, signUp } from "@/api/sign-up.ts";
+import { checkNickname, signUp } from "@/api/sign-up.ts";
 import { useNavigate } from "react-router";
 import { isAxiosError } from "axios";
 import type { ErrorResponse } from "@/api/response.type.ts";
 import type { ValidationState } from "@/types.ts";
+import { useCheckEmail } from "@/hooks/queries/use-check-email.ts";
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -52,15 +53,32 @@ export default function SignUpPage() {
     },
   });
 
+  const { refetch: checkEmail } = useCheckEmail(form.email);
+
   const canSubmit =
     Object.values(validation).find((it) => !it.status) === undefined &&
     form.agree;
 
   /** 이메일 **/
   const onEmailCheckClick = async () => {
-    try {
-      const checkResult = await checkEmail(form.email);
+    const { data: checkResult, isSuccess, isError, error } = await checkEmail();
 
+    if (isError) {
+      const response = error.response?.data;
+      setValidation((prev) => ({
+        ...prev,
+        email: {
+          ...prev.email,
+          type: "negative",
+          message: response?.error.message!,
+          status: false,
+          checked: true,
+        },
+      }));
+      return;
+    }
+
+    if (isSuccess) {
       setValidation((prev) => ({
         ...prev,
         email: {
@@ -71,20 +89,6 @@ export default function SignUpPage() {
           checked: checkResult.available,
         },
       }));
-    } catch (e) {
-      if (isAxiosError(e)) {
-        const response = e.response?.data as ErrorResponse;
-        setValidation((prev) => ({
-          ...prev,
-          email: {
-            ...prev.email,
-            type: "negative",
-            message: response.error.message,
-            status: false,
-            checked: true,
-          },
-        }));
-      }
     }
   };
   useEffect(() => {
