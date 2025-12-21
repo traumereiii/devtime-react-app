@@ -4,11 +4,11 @@ import TextField from "@/components/ui/text-field/TextField.tsx";
 import CheckBox from "@/components/ui/CheckBox.tsx";
 import { EMAIL_REG_EXP, PASSWORD_REG_EXP, TERM } from "@/lib/constants.ts";
 import Button from "@/components/ui/Button.tsx";
-import { signUp } from "@/api/sign-up.ts";
 import { useNavigate } from "react-router";
 import type { ValidationState } from "@/types.ts";
 import { useCheckEmail } from "@/hooks/queries/use-check-email.ts";
 import { useCheckNickname } from "@/hooks/queries/use-check-nickname.ts";
+import { useSignUp } from "@/hooks/mutations/use-sign-up.ts";
 
 export default function SignUpPage() {
   const navigate = useNavigate();
@@ -17,7 +17,7 @@ export default function SignUpPage() {
     email: "",
     nickname: "",
     password: "",
-    passwordConfirm: "",
+    confirmPassword: "",
     agree: false,
   });
 
@@ -54,6 +54,20 @@ export default function SignUpPage() {
 
   const { refetch: checkEmail } = useCheckEmail(form.email);
   const { refetch: checkNickname } = useCheckNickname(form.nickname);
+  const { mutate: signUp, isPending: isSignUpPending } = useSignUp({
+    onSuccess: (signUpResponse) => {
+      if (!signUpResponse.success) {
+        alert(signUpResponse.error?.message);
+        return;
+      }
+
+      alert("회원 가입에 성공했습니다.");
+      navigate("/sign-in");
+    },
+    onError: (error) => {
+      console.log("error: ", error);
+    },
+  });
 
   const canSubmit =
     Object.values(validation).find((it) => !it.status) === undefined &&
@@ -234,7 +248,7 @@ export default function SignUpPage() {
 
   /** 비밀번호 확인 **/
   useEffect(() => {
-    if (!form.passwordConfirm) {
+    if (!form.confirmPassword) {
       setValidation((prev) => ({
         ...prev,
         passwordConfirm: {
@@ -247,7 +261,7 @@ export default function SignUpPage() {
       return;
     }
 
-    if (form.password !== form.passwordConfirm) {
+    if (form.password !== form.confirmPassword) {
       setValidation((prev) => ({
         ...prev,
         passwordConfirm: {
@@ -268,24 +282,7 @@ export default function SignUpPage() {
         },
       }));
     }
-  }, [form.passwordConfirm]);
-
-  const handleJoinClick = async () => {
-    const response = await signUp({
-      email: form.email,
-      nickname: form.nickname,
-      password: form.password,
-      confirmPassword: form.passwordConfirm,
-    });
-
-    if (response.success) {
-      alert("회원 가입에 성공했습니다.");
-      navigate("/sign-in");
-    } else {
-      const message = response.error?.message;
-      alert(message);
-    }
-  };
+  }, [form.confirmPassword]);
 
   const handleLoginClick = () => {
     navigate("/sign-in");
@@ -373,8 +370,8 @@ export default function SignUpPage() {
             </TextField>
 
             <TextField
-              value={form.passwordConfirm}
-              setValue={(value) => setForm({ ...form, passwordConfirm: value })}
+              value={form.confirmPassword}
+              setValue={(value) => setForm({ ...form, confirmPassword: value })}
             >
               <TextField.Label>비밀번호 확인</TextField.Label>
               <TextField.Input
@@ -420,10 +417,10 @@ export default function SignUpPage() {
             <div className="mt-[36px]">
               <Button
                 variant="primary"
-                onClick={handleJoinClick}
+                onClick={() => signUp(form)}
                 width="100%"
                 className="sub-title-s"
-                disabled={!canSubmit}
+                disabled={!canSubmit || isSignUpPending}
               >
                 회원가입
               </Button>
