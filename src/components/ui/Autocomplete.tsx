@@ -21,6 +21,7 @@ export default function Autocomplete({
   const handleComplete = (e: KeyboardEvent) => {
     if (e.key === "Enter") {
       onComplete(search);
+      onSearchChange("");
     }
   };
   const handleItemClick = (item: string) => {

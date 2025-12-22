@@ -1,3 +1,6 @@
+export const EMAIL_REG_EXP = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
+export const PASSWORD_REG_EXP = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+
 export const TERM = `
 <div>
   <div class="caption-b">제1조 (목적)</div>

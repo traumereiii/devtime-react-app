@@ -1,5 +1,5 @@
 export interface CheckEmailResponse {
-  success: boolean;
+  success: true;
   available: boolean;
   message: string;
 }
@@ -14,6 +14,14 @@ export interface CommonResponse {
   success: boolean;
   message?: string;
   error?: {
+    message: string;
+    statusCode: number;
+  };
+}
+
+export interface ErrorResponse {
+  success: false;
+  error: {
     message: string;
     statusCode: number;
   };

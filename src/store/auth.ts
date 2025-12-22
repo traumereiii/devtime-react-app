@@ -33,7 +33,14 @@ export const useAuthStore = create(
           },
         })), // end of combine
       ), // end of immer
-      { name: "AuthStore", storage: createJSONStorage(() => localStorage) }, // options of persist
+      {
+        name: "AuthStore",
+        storage: createJSONStorage(() => localStorage),
+        partialize: (state) => ({
+          accessToken: state.accessToken,
+          refreshToken: state.refreshToken,
+        }),
+      }, // options of persist
     ),
     { name: "AuthStore" }, // options of devtools
   ), // end of devtools
