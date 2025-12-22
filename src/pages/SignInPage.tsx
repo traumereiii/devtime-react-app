@@ -4,18 +4,55 @@ import Button from "@/components/ui/Button.tsx";
 import TextField from "@/components/ui/text-field/TextField.tsx";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
-
-import { login } from "@/api/auth.ts";
 import { useCloseDialog, useOpenDialog } from "@/store/dialog.ts";
 import { useAuthStore } from "@/store/auth.ts";
 import { EMAIL_REG_EXP, PASSWORD_REG_EXP } from "@/lib/constants.ts";
 import type { ValidationState } from "@/types.ts";
+import { useLogin } from "@/hooks/mutations/use-login.ts";
 
 export default function SignInPage() {
   const navigate = useNavigate();
   const openDialog = useOpenDialog();
   const closeDialog = useCloseDialog();
   const authStore = useAuthStore();
+  let { mutate: login } = useLogin({
+    onSuccess: (loginResponse) => {
+      console.log("onSuccess: ", loginResponse);
+      if (!loginResponse.success) {
+        openDialog({
+          title: "로그인 정보를 다시 확인해 주세요",
+          onPositive: {
+            label: "확인",
+            onClick: () => {
+              closeDialog();
+            },
+          },
+        });
+        return;
+      }
+
+      authStore.actions.setToken(
+        loginResponse.accessToken,
+        loginResponse.refreshToken,
+      );
+
+      if (loginResponse.isDuplicateLogin) {
+        openDialog({
+          title: "중복 로그인이 불가능합니다.",
+          body: "다른 기기에 중복 로그인 된 상태입니다. [확인] 버튼을 누르면 다른 기기에서 강제 로그아웃되며, 진행중이던 타이머가 있다면 기록이 자동 삭제 됩니다.",
+          onPositive: {
+            label: "확인",
+            onClick: async () => {
+              //TODO 로그아웃 호출
+              closeDialog();
+            },
+          },
+        });
+        return;
+      }
+      navigate("/");
+    },
+  });
 
   const [form, setForm] = useState({
     email: "",
@@ -113,47 +150,6 @@ export default function SignInPage() {
 
   const handleSignUpClick = () => navigate("/sign-up");
 
-  const handleLoginClick = async () => {
-    const loginResponse = await login({
-      email: form.email,
-      password: form.password,
-    });
-    if (!loginResponse.success) {
-      openDialog({
-        title: "로그인 정보를 다시 확인해 주세요",
-        onPositive: {
-          label: "확인",
-          onClick: () => {
-            closeDialog();
-          },
-        },
-      });
-      return;
-    }
-
-    console.log("authStore.actions: ", authStore);
-    authStore.actions.setToken(
-      loginResponse.accessToken,
-      loginResponse.refreshToken,
-    );
-
-    if (loginResponse.isDuplicateLogin) {
-      openDialog({
-        title: "중복 로그인이 불가능합니다.",
-        body: "다른 기기에 중복 로그인 된 상태입니다. [확인] 버튼을 누르면 다른 기기에서 강제 로그아웃되며, 진행중이던 타이머가 있다면 기록이 자동 삭제 됩니다.",
-        onPositive: {
-          label: "확인",
-          onClick: async () => {
-            //TODO 로그아웃 호출
-            closeDialog();
-          },
-        },
-      });
-      return;
-    }
-    navigate("/");
-  };
-
   return (
     <>
       <img
@@ -210,7 +206,7 @@ export default function SignInPage() {
                   variant="primary"
                   disabled={!canSubmit}
                   width="100%"
-                  onClick={handleLoginClick}
+                  onClick={() => login(form)}
                 >
                   로그인
                 </Button>

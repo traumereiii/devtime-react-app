@@ -5,7 +5,7 @@ import type {
   SignUpResponse,
 } from "@/api/response.type.ts";
 import type { SignUpRequest } from "@/api/request.type.ts";
-import type { AxiosError } from "axios";
+import { AxiosError } from "axios";
 
 export async function checkEmail(email: string): Promise<CheckEmailResponse> {
   const { data } = await api.get<CheckEmailResponse>(
@@ -14,6 +14,7 @@ export async function checkEmail(email: string): Promise<CheckEmailResponse> {
       params: { email },
     },
   );
+
   return data;
 }
 
