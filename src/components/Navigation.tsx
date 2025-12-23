@@ -27,7 +27,7 @@ export default function Navigation() {
         <img
           src={Logo}
           alt="로고"
-          className="cursor-pointer"
+          className="w-[148px] cursor-pointer"
           onClick={() => navigate("/")}
         />
         <div className="flex items-center gap-[38px]">
