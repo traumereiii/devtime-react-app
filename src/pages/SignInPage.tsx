@@ -9,6 +9,8 @@ import { useAuthStore } from "@/store/auth.ts";
 import { EMAIL_REG_EXP, PASSWORD_REG_EXP } from "@/lib/constants.ts";
 import type { ValidationState } from "@/types.ts";
 import { useLogin } from "@/hooks/mutations/use-login.ts";
+import { isAxiosError } from "axios";
+import type { ErrorResponse } from "@/api/response.type.ts";
 
 export default function SignInPage() {
   const navigate = useNavigate();
@@ -51,6 +53,22 @@ export default function SignInPage() {
         return;
       }
       navigate("/");
+    },
+    onError: (error: Error) => {
+      if (isAxiosError(error)) {
+        const errorResponse = error.response?.data as ErrorResponse;
+        openDialog({
+          title: "로그인 실패",
+          body: errorResponse.error.message,
+          onPositive: {
+            label: "확인",
+            onClick: async () => {
+              //TODO 로그아웃 호출
+              closeDialog();
+            },
+          },
+        });
+      }
     },
   });
 

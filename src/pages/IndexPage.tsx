@@ -1,7 +1,6 @@
 import AddImage from "@/components/ui/AddImage.tsx";
 import { useState } from "react";
 import Dropdown from "@/components/ui/Dropdown.tsx";
-import Autocomplete from "@/components/ui/Autocomplete.tsx";
 import Chip from "@/components/ui/Chip.tsx";
 import Select from "@/components/ui2/Select.tsx";
 import Button from "@/components/ui/Button.tsx";
