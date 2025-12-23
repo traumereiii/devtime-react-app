@@ -22,13 +22,13 @@ export default function NavigationDropdown({
   };
 
   const handleMyPageClick = () => {
-    navigate("/my-page");
     setOpen(false);
+    navigate("/my-page");
   };
   const handleLogoutClick = () => {
+    setOpen(false);
     authStore.actions.logout();
     navigate("/sign-in");
-    setOpen(false);
   };
 
   return (
