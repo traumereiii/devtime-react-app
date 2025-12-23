@@ -21,10 +21,14 @@ export default function NavigationDropdown({
     setOpen((prev) => !prev);
   };
 
-  const handleMyPageClick = () => navigate("/my-page");
+  const handleMyPageClick = () => {
+    navigate("/my-page");
+    setOpen(false);
+  };
   const handleLogoutClick = () => {
     authStore.actions.logout();
     navigate("/sign-in");
+    setOpen(false);
   };
 
   return (

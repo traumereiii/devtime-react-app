@@ -7,6 +7,7 @@ import TimerPage from "./pages/TimerPage.tsx";
 import DashboardPage from "./pages/DashboardPage.tsx";
 import RankingPage from "./pages/RankingPage.tsx";
 import DefaultLayout from "@/components/DefaultLayout.tsx";
+import MyPagePage from "@/pages/MyPagePage.tsx";
 
 export default function AppRoutes() {
   return (
@@ -17,6 +18,7 @@ export default function AppRoutes() {
         <Route path={"/timer"} element={<TimerPage />} />
         <Route path={"/dashboard"} element={<DashboardPage />} />
         <Route path={"/ranking"} element={<RankingPage />} />
+        <Route path={"/my-page"} element={<MyPagePage />} />
       </Route>
 
       <Route path={"/sign-in"} element={<SignInPage />} />
